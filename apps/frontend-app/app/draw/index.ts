@@ -17,6 +17,8 @@ type Shape ={
 export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket: WebSocket){
     
     let eXistingShapes :Shape[] =await getExistingShapes(roomId);
+    console.log(eXistingShapes)
+    
     const ctx= canvas.getContext("2d");
     if(!ctx) return;
 
@@ -26,8 +28,9 @@ export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket:
         if(message.type =="chat")
         {
             const parsedShape = JSON.parse(message.message);
-            eXistingShapes.push(parsedShape);
+            eXistingShapes.push(parsedShape.shape);
              clearCanvas(eXistingShapes,canvas,ctx);
+ 
 
         }
     }
@@ -50,14 +53,16 @@ export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket:
         const height = e.clientY-startY;
         const shape: Shape = 
         {
-            type :"rect",
-            x:startX,
-            y:startY,
+            type : "rect",
+            x: startX,
+            y: startY,
             height,
             width
 
         }
-        eXistingShapes.push(shape)
+ 
+        eXistingShapes.push(shape);
+         console.log("data");
          socket.send(JSON.stringify({
             type:"chat",
             message:JSON.stringify({shape
@@ -99,8 +104,10 @@ async function getExistingShapes (roomId:string) {
     const messages = res.data.messages;
     const shapes = messages.map((x:{message:string}) =>{
         const messageData = JSON.parse(x.message)
-        return messageData;
+        return messageData.shape;
 
     })
     return shapes
 }
+
+
