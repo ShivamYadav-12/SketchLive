@@ -22,7 +22,9 @@ const Canvas = ({roomId,socket}:{
         if(canvasRef.current) {
         const g = new Game(canvasRef.current,roomId,socket)
           setGame(g);
-
+    return () =>{
+        g.destroy();
+    }
 
         }
         
@@ -49,7 +51,7 @@ function Topbar ({selectedTool,setSelectedTool}:
     <div style={{
         position:"fixed",
         top:10,
-        left:10,
+    left: "50%",
     }}>
         <div className="flex gap-2">
    <IconButton icon={<Pencil/>} onClick={()=>{ setSelectedTool("pencil")}} activated={selectedTool ==="pencil"}/>
