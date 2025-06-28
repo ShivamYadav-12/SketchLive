@@ -12,6 +12,11 @@ type Shape ={
     radius:number;
     centerX:number;
     cenetrY:number;
+}|{
+     type :"pencil";
+      path: { x: number; y: number }[];
+
+
 }
 
 export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket: WebSocket){
@@ -39,13 +44,22 @@ export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket:
     let clicked = false;
     let startX =0;
     let startY =0;
+    let paint = false;
+    let currentPath: {x: number; y: number}[] = []
  
 
 
     canvas.addEventListener('mousedown',(e)=>{
         clicked = true;
         startX = e.clientX;
-        startY = e.clientY
+        startY = e.clientY;
+         //@ts-ignore
+        const selectedTool = window.selectedTool;
+        if(selectedTool ==="circle"){
+        paint = true;
+        currentPath = [{ x: startX, y: startY }];
+
+    }
     })
     canvas.addEventListener('mouseup',(e)=>{
         clicked = false;
@@ -84,6 +98,15 @@ export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket:
         eXistingShapes.push(shape);
 
     }
+    else if ( selectedTool ==="pencil"){
+        shape = {
+      type: "pencil",
+      path: currentPath,
+    };
+    eXistingShapes.push(shape);
+    paint = false;
+    currentPath = [];
+    }
          if(!shape){
             return;
          }
@@ -103,6 +126,8 @@ export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket:
         if(clicked){
             const width = e.clientX - startX;
             const height = e.clientY-startY;
+            const mouseX = e.clientX - canvas.offsetLeft;
+            const mouseY = e.clientY - canvas.offsetTop;
          clearCanvas(eXistingShapes,canvas,ctx);
             ctx.strokeStyle = "rgba(255,255,255)";
             //@ts-ignore
@@ -118,6 +143,21 @@ export async  function initDraw(canvas: HTMLCanvasElement,roomId: string,socket:
                 ctx.arc(centerX,ceneterY,radius,0,Math.PI*2);
                 ctx.stroke();
                 ctx.closePath();
+            }
+            else if(selectedTool ==="pencil"){
+            currentPath.push({ x: mouseX, y: mouseY });
+
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "white";
+
+    for (let i = 0; i < currentPath.length - 1; i++) {
+      ctx.moveTo(currentPath[i].x, currentPath[i].y);
+      ctx.lineTo(currentPath[i + 1].x, currentPath[i + 1].y);
+    }
+    ctx.stroke();
+    ctx.closePath();
             }
 
         }
@@ -141,6 +181,18 @@ function clearCanvas(eXistingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
                 ctx.closePath();
 
         }
+        else if (shape.type === "pencil") {
+         ctx.beginPath();
+       ctx.lineWidth = 2;
+           ctx.lineCap = "round";
+  ctx.strokeStyle = "white";
+  for (let i = 0; i < shape.path.length - 1; i++) {
+    ctx.moveTo(shape.path[i].x, shape.path[i].y);
+    ctx.lineTo(shape.path[i + 1].x, shape.path[i + 1].y);
+  }
+  ctx.stroke();
+  ctx.closePath();
+}
     })
 }
 
@@ -154,5 +206,6 @@ async function getExistingShapes (roomId:string) {
     })
     return shapes
 }
+
 
 
