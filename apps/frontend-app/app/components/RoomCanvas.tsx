@@ -9,7 +9,7 @@ const RoomCanvas = ({ roomId }: { roomId: string }) => {
 
   useEffect(() => {
     const ws = new WebSocket(
-      `${WS_BACKEND}?token=`
+      `${WS_BACKEND}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkZDYwYTMxOS0zODhlLTQxOTEtOTAxNS0zY2NiNzE1M2VhMmIiLCJpYXQiOjE3NTExMzU2NTl9.rb5LW4dFRzeIs8CBjpWIicaiHXTYLbNlpBi07R230dk`
     );
 
 
